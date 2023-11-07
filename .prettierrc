@@ -1,0 +1,9 @@
+{
+  "semi": true,
+  "singleQuote": true,
+  "bracketSpacing": false,
+  "prettier.tabWidth": 2,
+  "quoteProps": "preserve",
+  "TrailingCooma": "all",
+  "trailingComma": "all"
+}

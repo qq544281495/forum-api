@@ -1,0 +1,48 @@
+{
+  "name": "forum-api",
+  "version": "1.0.0",
+  "description": "Koa实现论坛API",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node app/index.js",
+    "dev": "nodemon app/index.js",
+    "eslintInit": "eslint --init",
+    "lint": "eslint *.js",
+    "prepare": "husky install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
+    "koa": "^2.14.2",
+    "koa-body": "^6.0.1",
+    "koa-json-error": "^3.1.2",
+    "koa-jwt": "^4.0.4",
+    "koa-parameter": "^3.0.1",
+    "koa-router": "^12.0.1",
+    "koa-static": "^5.0.0",
+    "mongoose": "^8.0.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-conventional": "^12.1.4",
+    "cross-env": "^7.0.3",
+    "cz-customizable": "^6.3.0",
+    "eslint": "^8.53.0",
+    "eslint-config-google": "^0.14.0",
+    "husky": "^7.0.1",
+    "lint-staged": "^15.0.2",
+    "nodemon": "^3.0.1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-customizable"
+    }
+  },
+  "lint-staged": {
+    "app/**/*.{js}": [
+      "eslint --fix"
+    ]
+  }
+}
