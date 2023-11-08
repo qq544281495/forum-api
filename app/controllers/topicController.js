@@ -1,4 +1,5 @@
 const Topic = require('../model/topic');
+const User = require('../model/user');
 const path = require('path');
 const {deleteUserAvatar} = require('../utils/common');
 /**
@@ -98,6 +99,19 @@ class TopicController {
     } catch (error) {
       ctx.throw(500, error.message);
     }
+  }
+  /**
+   * 获取话题关注用户
+   * @param {*} ctx
+   */
+  async followingList(ctx) {
+    const topicId = ctx.params.id;
+    const topic = await Topic.findById(topicId);
+    if (!topic) {
+      ctx.throw(404, '话题不存在');
+    }
+    const user = await User.find({followingTopic: topicId});
+    ctx.body = user;
   }
 }
 

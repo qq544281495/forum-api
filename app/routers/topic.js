@@ -9,6 +9,7 @@ const {
   createTopic,
   updateTopic,
   uploadTopicAvatar,
+  followingList,
 } = require('../controllers/topicController');
 const {auth} = require('../middleware/index');
 
@@ -28,5 +29,6 @@ router.post(
   }),
   uploadTopicAvatar,
 );
+router.get('/followingList/:id', followingList);
 
 module.exports = router;

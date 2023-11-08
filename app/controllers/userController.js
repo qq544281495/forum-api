@@ -72,6 +72,7 @@ class UserController {
       '+employments',
       '+educations',
       '+following',
+      '+followingTopic',
       '+createDate',
     ];
     const populate = [
@@ -81,6 +82,8 @@ class UserController {
       'employments.job',
       'educations.school',
       'educations.major',
+      'following',
+      'followingTopic',
     ];
     const selectParams = select.join(' ');
     const populateParams = populate.join(' ');
@@ -220,6 +223,37 @@ class UserController {
     const userId = ctx.params.id;
     const user = await User.find({following: userId});
     ctx.body = user;
+  }
+  /**
+   * 关注话题
+   * @param {*} ctx
+   */
+  async followTopic(ctx) {
+    const userId = ctx.state.user._id;
+    const topicId = ctx.params.id;
+    const user = await User.findById(userId).select('+followingTopic');
+    const topicList = user.followingTopic.map((item) => item.toString());
+    if (!topicList.includes(topicId)) {
+      user.followingTopic.push(topicId);
+      user.save();
+    }
+    ctx.status = 204;
+  }
+  /**
+   * 取消关注话题
+   * @param {*} ctx
+   */
+  async unfollowTopic(ctx) {
+    const userId = ctx.state.user._id;
+    const topicId = ctx.params.id;
+    const user = await User.findById(userId).select('+followingTopic');
+    const topicList = user.followingTopic.map((item) => item.toString());
+    const index = topicList.indexOf(topicId);
+    if (index > -1) {
+      user.followingTopic.splice(index, 1);
+      user.save();
+    }
+    ctx.status = 204;
   }
 }
 

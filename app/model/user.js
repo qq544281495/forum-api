@@ -77,12 +77,22 @@ const userSchema = mongoose.Schema({
     ],
     select: false,
   },
-  // 粉丝列表
+  // 关注用户
   following: {
     type: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+      },
+    ],
+    select: false,
+  },
+  // 关注话题
+  followingTopic: {
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Topic',
       },
     ],
     select: false,
