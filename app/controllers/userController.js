@@ -52,7 +52,12 @@ class UserController {
    * @param {*} ctx
    */
   async getUserList(ctx) {
-    const userList = await User.find();
+    let {pageNumber = 1, pageSize = 10, keyword = ''} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
+    const userList = await User.find({username: new RegExp(keyword)})
+      .limit(pageSize)
+      .skip((pageNumber - 1) * pageSize);
     ctx.body = userList;
   }
   /**

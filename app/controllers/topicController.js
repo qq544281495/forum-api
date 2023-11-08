@@ -10,10 +10,14 @@ class TopicController {
    * @param {*} ctx
    */
   async getTopicList(ctx) {
-    let {pageNumber = 1, pageSize = 10, keyword = ''} = ctx.query;
+    let {pageNumber = 1, pageSize = 10, keyword = '', classify} = ctx.query;
+    const params = {name: new RegExp(keyword)};
+    if (classify) {
+      params['classify'] = classify;
+    }
     pageNumber = Math.max(pageNumber * 1, 1);
     pageSize = Math.max(pageSize * 1, 1);
-    const topic = await Topic.find({name: new RegExp(keyword)})
+    const topic = await Topic.find(params)
       .limit(pageSize)
       .skip((pageNumber - 1) * pageSize);
     ctx.body = topic;
@@ -24,7 +28,12 @@ class TopicController {
    */
   async getTopicDetail(ctx) {
     const topicId = ctx.params.id;
-    const topic = await Topic.findById(topicId).select('+introduction');
+    const topic = await Topic.findById(topicId)
+      .select('+introduction +classify')
+      .populate('classify');
+    if (!topic) {
+      ctx.throw(404, '话题不存在');
+    }
     ctx.body = topic;
   }
   /**
@@ -35,7 +44,13 @@ class TopicController {
     ctx.verifyParams({
       name: {type: 'string', required: true},
       introduction: {type: 'string', required: false},
+      classify: {type: 'string', required: true},
     });
+    const {name} = ctx.request.body;
+    const existsTopic = await Topic.findOne({name});
+    if (existsTopic) {
+      ctx.throw(409, '话题已存在');
+    }
     const topicParams = ctx.request.body;
     const topic = await new Topic(topicParams).save();
     ctx.body = topic;
@@ -48,10 +63,14 @@ class TopicController {
     ctx.verifyParams({
       name: {type: 'string', required: false},
       introduction: {type: 'string', required: false},
+      classify: {type: 'string', required: false},
     });
     const topicId = ctx.params.id;
     const topicParams = ctx.request.body;
     const topic = await Topic.findByIdAndUpdate(topicId, topicParams);
+    if (!topic) {
+      ctx.throw(404, '话题不存在');
+    }
     ctx.body = topic;
   }
   /**

@@ -5,6 +5,12 @@ const topicSchema = mongoose.Schema({
   name: {type: String, required: true},
   avatar_url: {type: String},
   introduction: {type: String, select: false},
+  classify: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Classify',
+    required: true,
+    select: false,
+  },
 });
 
 module.exports = mongoose.model('Topic', topicSchema, 'topics');
