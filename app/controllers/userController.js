@@ -159,6 +159,66 @@ class UserController {
       ctx.throw(500, error.message);
     }
   }
+  /**
+   * 关注用户
+   * @param {*} ctx
+   */
+  async follow(ctx) {
+    const userId = ctx.state.user._id;
+    const followId = ctx.params.id;
+    if (userId === followId) {
+      ctx.throw(409, '无法关注该用户');
+    }
+    const user = await User.findById(userId).select('+following');
+    const followList = user.following.map((item) => item.toString());
+    if (!followList.includes(followId)) {
+      user.following.push(followId);
+      user.save();
+    }
+    ctx.status = 204;
+  }
+  /**
+   * 取消关注
+   * @param {*} ctx
+   */
+  async unfollow(ctx) {
+    const userId = ctx.state.user._id;
+    const unfollowId = ctx.params.id;
+    if (userId === unfollowId) {
+      ctx.throw(409, '无法取关该用户');
+    }
+    const user = await User.findById(userId).select('+following');
+    const followList = user.following.map((item) => item.toString());
+    const index = followList.indexOf(unfollowId);
+    if (index > -1) {
+      user.following.splice(index, 1);
+      user.save();
+    }
+    ctx.status = 204;
+  }
+  /**
+   * 获取用户关注列表
+   * @param {*} ctx
+   */
+  async followingList(ctx) {
+    const userId = ctx.params.id;
+    const user = await User.findById(userId)
+      .select('+following')
+      .populate('following');
+    if (!user) {
+      ctx.throw(404, '用户不存在');
+    }
+    ctx.body = user.following;
+  }
+  /**
+   * 获取用户粉丝列表
+   * @param {*} ctx
+   */
+  async followerList(ctx) {
+    const userId = ctx.params.id;
+    const user = await User.find({following: userId});
+    ctx.body = user;
+  }
 }
 
 module.exports = new UserController();

@@ -11,9 +11,13 @@ const {
   updateUser,
   deleteUser,
   uploadUserAvatar,
+  follow,
+  unfollow,
+  followingList,
+  followerList,
 } = require('../controllers/userController');
 // 中间件
-const {auth, checkUser} = require('../middleware/index');
+const {auth, checkUser, checkUserExist} = require('../middleware/index');
 
 router.post('/', createUser);
 router.post('/login', userLogin);
@@ -34,5 +38,9 @@ router.post(
   }),
   uploadUserAvatar,
 );
+router.put('/following/:id', auth, checkUserExist, follow);
+router.delete('/unfollow/:id', auth, checkUserExist, unfollow);
+router.get('/followingList/:id', followingList);
+router.get('/followerList/:id', followerList);
 
 module.exports = router;
