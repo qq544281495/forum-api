@@ -23,5 +23,7 @@ module.exports = {
     'space-before-function-paren': 'off',
     'linebreak-style': ['off', 'windows'],
     'indent': 'off',
+    'new-cap': 'off',
+    'camelcase': 'off',
   },
 };
