@@ -1,6 +1,7 @@
 const jwt = require('koa-jwt');
 const {secret} = require('../config/index');
 const User = require('../model/user');
+const Question = require('../model/question');
 
 /**
  * 中间件
@@ -33,6 +34,24 @@ class Middleware {
     const user = await User.findById(userId);
     if (!user) {
       ctx.throw(404, '用户不存在');
+    }
+    await next();
+  }
+  /**
+   * 判断是否为问题发起人
+   * @param {*} ctx
+   * @param {*} next
+   */
+  async checkUserQuestion(ctx, next) {
+    const userId = ctx.state.user._id;
+    const questionId = ctx.params.id;
+    const question = await Question.findById(questionId);
+    if (!question) {
+      ctx.throw(404, '问题不存在');
+    }
+    const {questioner} = question;
+    if (userId !== questioner.toString()) {
+      ctx.throw(403, '用户权限不足');
     }
     await next();
   }

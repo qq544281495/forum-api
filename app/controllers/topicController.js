@@ -1,5 +1,6 @@
 const Topic = require('../model/topic');
 const User = require('../model/user');
+const Question = require('../model/question');
 const path = require('path');
 const {deleteUserAvatar} = require('../utils/common');
 /**
@@ -112,6 +113,20 @@ class TopicController {
     }
     const user = await User.find({followingTopic: topicId});
     ctx.body = user;
+  }
+  /**
+   * 获取话题相关问题
+   * @param {*} ctx
+   */
+  async getTopicQuestion(ctx) {
+    const topicId = ctx.params.id;
+    let {pageNumber = 1, pageSize = 10} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
+    const question = await Question.find({topic: topicId})
+      .limit(pageSize)
+      .skip((pageNumber - 1) * pageSize);
+    ctx.body = question;
   }
 }
 

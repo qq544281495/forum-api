@@ -1,4 +1,5 @@
 const User = require('../model/user');
+const Question = require('../model/question');
 const jsonwebtoken = require('jsonwebtoken');
 const {secret} = require('../config/index');
 const path = require('path');
@@ -254,6 +255,19 @@ class UserController {
       user.save();
     }
     ctx.status = 204;
+  }
+  /**
+   * 获取用户提问列表
+   * @param {*} ctx
+   */
+  async getUserQuestion(ctx) {
+    const userId = ctx.params.id;
+    const user = await User.findById(userId);
+    if (!user) {
+      ctx.throw(404, '用户不存在');
+    }
+    const question = await Question.find({questioner: userId});
+    ctx.body = question;
   }
 }
 

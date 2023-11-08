@@ -17,6 +17,7 @@ const {
   followerList,
   followTopic,
   unfollowTopic,
+  getUserQuestion,
 } = require('../controllers/userController');
 // 中间件
 const {auth, checkUser, checkUserExist} = require('../middleware/index');
@@ -46,5 +47,6 @@ router.get('/followingList/:id', followingList);
 router.get('/followerList/:id', followerList);
 router.put('/followTopic/:id', auth, followTopic);
 router.delete('/unfollowTopic/:id', auth, unfollowTopic);
+router.get('/question/:id', getUserQuestion);
 
 module.exports = router;
