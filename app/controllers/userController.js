@@ -1,24 +1,9 @@
 const User = require('../model/user');
 const jsonwebtoken = require('jsonwebtoken');
 const {secret} = require('../config/index');
-const operate = require('../utils/operate');
 const path = require('path');
+const {deleteUserAvatar} = require('../utils/common');
 
-/**
- * 删除用户头像
- * @param {string} url
- * @param {string} origin
- */
-async function deleteUserAvatar(url, origin) {
-  if (!url) return;
-  const lastPath = url.substring(origin.length);
-  // 获取用户头像绝对路径
-  const avatarUrl = path.join(__dirname, `../public${lastPath}`);
-  const existsAvatar = await operate.exists(avatarUrl);
-  if (existsAvatar) {
-    await operate.delete(avatarUrl);
-  }
-}
 /**
  * 用户API控制器
  */
