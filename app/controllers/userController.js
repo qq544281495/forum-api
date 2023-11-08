@@ -61,15 +61,27 @@ class UserController {
    */
   async getUserDetail(ctx) {
     const id = ctx.params.id;
-    const params = [
+    const select = [
       '+locations',
       '+business',
       '+employments',
       '+educations',
+      '+following',
       '+createDate',
     ];
-    const selectParams = params.join(' ');
-    const user = await User.findById(id).select(selectParams);
+    const populate = [
+      'locations',
+      'business',
+      'employments.company',
+      'employments.job',
+      'educations.school',
+      'educations.major',
+    ];
+    const selectParams = select.join(' ');
+    const populateParams = populate.join(' ');
+    const user = await User.findById(id)
+      .select(selectParams)
+      .populate(populateParams);
     if (!user) {
       ctx.throw(404, '用户不存在');
     }

@@ -2,10 +2,14 @@ const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
   __v: {type: Number, select: false},
-  username: {type: String, require: true}, // 用户名
-  email: {type: String, require: true}, // 用户邮箱
-  password: {type: String, require: true, select: false}, // 密码
-  avatar_url: {type: String}, // 用户头像
+  // 用户名
+  username: {type: String, require: true},
+  // 用户邮箱
+  email: {type: String, require: true},
+  // 密码
+  password: {type: String, require: true, select: false},
+  // 用户头像
+  avatar_url: {type: String},
   // 性别
   gander: {
     type: String,
@@ -13,15 +17,38 @@ const userSchema = mongoose.Schema({
     default: 'male',
     require: true,
   },
-  handline: {type: String}, // 介绍
-  locations: {type: [{type: String}], select: false}, // 居住地
-  business: {type: String, select: false}, // 行业
+  // 介绍
+  handline: {type: String},
+  // 居住地
+  locations: {
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Topic',
+      },
+    ],
+    select: false,
+  },
+  // 行业
+  business: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Topic',
+    select: false,
+  },
   // 职业经历
   employments: {
     type: [
       {
-        company: {type: String}, // 公司
-        job: {type: String}, // 职位
+        // 公司
+        company: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Topic',
+        },
+        // 职位
+        job: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Topic',
+        },
       },
     ],
     select: false,
@@ -30,12 +57,22 @@ const userSchema = mongoose.Schema({
   educations: {
     type: [
       {
-        school: {type: String}, // 学校
-        major: {type: String}, // 专业
+        // 学校
+        school: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Topic',
+        },
+        // 专业
+        major: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Topic',
+        },
         // 学历（小学 初中 高中 专科 本科 硕士 博士及以上）
         diploma: {type: Number, enum: [1, 2, 3, 4, 5, 6, 7]},
-        entrance_year: {type: Number}, // 入学年份
-        graduation_year: {type: Number}, // 毕业年份
+        // 入学年份
+        entrance_year: {type: Number},
+        // 毕业年份
+        graduation_year: {type: Number},
       },
     ],
     select: false,
