@@ -17,7 +17,17 @@ const {
   followerList,
   followTopic,
   unfollowTopic,
+  getFollowTopicList,
   getUserQuestion,
+  likingAnswer,
+  unlikingAnswer,
+  dislikingAnswer,
+  undislikingAnswer,
+  getLikingAnswerList,
+  getDislikingAnswerList,
+  collectAnswer,
+  uncollectAnswer,
+  getCollectAnswerList,
 } = require('../controllers/userController');
 // 中间件
 const {auth, checkUser, checkUserExist} = require('../middleware/index');
@@ -47,6 +57,16 @@ router.get('/followingList/:id', followingList);
 router.get('/followerList/:id', followerList);
 router.put('/followTopic/:id', auth, followTopic);
 router.delete('/unfollowTopic/:id', auth, unfollowTopic);
+router.get('/getFollowTopicList/:id', getFollowTopicList);
+router.put('/likingAnswer/:id', auth, likingAnswer, undislikingAnswer);
+router.delete('/unlikingAnswer/:id', auth, unlikingAnswer);
+router.get('/getLikingAnswerList/:id', getLikingAnswerList);
+router.put('/dislikingAnswer/:id', auth, dislikingAnswer, unlikingAnswer);
+router.delete('/undislikingAnswer/:id', auth, undislikingAnswer);
+router.get('/getDislikingAnswerList/:id', getDislikingAnswerList);
+router.put('/collectAnswer/:id', auth, collectAnswer);
+router.delete('/uncollectAnswer/:id', auth, uncollectAnswer);
+router.get('/getCollectAnswerList/:id', getCollectAnswerList);
 router.get('/question/:id', getUserQuestion);
 
 module.exports = router;

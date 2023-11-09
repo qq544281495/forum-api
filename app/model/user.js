@@ -97,6 +97,36 @@ const userSchema = mongoose.Schema({
     ],
     select: false,
   },
+  // 点赞回答
+  likingAnswer: {
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Answer',
+      },
+    ],
+    select: false,
+  },
+  // 点踩回答
+  dislikingAnswer: {
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Answer',
+      },
+    ],
+    select: false,
+  },
+  // 收藏回答
+  collectAnswer: {
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Answer',
+      },
+    ],
+    select: false,
+  },
   // 用户创建时间
   createDate: {type: Date, default: Date.now(), select: false},
 });

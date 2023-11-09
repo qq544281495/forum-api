@@ -1,5 +1,6 @@
 const User = require('../model/user');
 const Question = require('../model/question');
+const Answer = require('../model/answer');
 const jsonwebtoken = require('jsonwebtoken');
 const {secret} = require('../config/index');
 const path = require('path');
@@ -73,7 +74,6 @@ class UserController {
       '+employments',
       '+educations',
       '+following',
-      '+followingTopic',
       '+createDate',
     ];
     const populate = [
@@ -84,7 +84,6 @@ class UserController {
       'educations.school',
       'educations.major',
       'following',
-      'followingTopic',
     ];
     const selectParams = select.join(' ');
     const populateParams = populate.join(' ');
@@ -257,6 +256,20 @@ class UserController {
     ctx.status = 204;
   }
   /**
+   * 获取用户关注话题列表
+   * @param {*} ctx
+   */
+  async getFollowTopicList(ctx) {
+    const userId = ctx.params.id;
+    const user = await User.findById(userId)
+      .select('+followingTopic')
+      .populate('followingTopic');
+    if (!user) {
+      ctx.throw(404, '用户不存在');
+    }
+    ctx.body = user.followingTopic;
+  }
+  /**
    * 获取用户提问列表
    * @param {*} ctx
    */
@@ -268,6 +281,157 @@ class UserController {
     }
     const question = await Question.find({questioner: userId});
     ctx.body = question;
+  }
+  /**
+   * 点赞回答
+   * @param {*} ctx
+   * @param {*} next
+   */
+  async likingAnswer(ctx, next) {
+    const userId = ctx.state.user._id;
+    const answerId = ctx.params.id;
+    const user = await User.findById(userId).select('+likingAnswer');
+    const likingList = user.likingAnswer.map((item) => item.toString());
+    if (!likingList.includes(answerId)) {
+      user.likingAnswer.push(answerId);
+      user.save();
+      await Answer.findByIdAndUpdate(answerId, {$inc: {upvote: 1}});
+    }
+    ctx.status = 204;
+    await next();
+  }
+  /**
+   * 取消点赞
+   * @param {*} ctx
+   */
+  async unlikingAnswer(ctx) {
+    const userId = ctx.state.user._id;
+    const answerId = ctx.params.id;
+    const user = await User.findById(userId).select('+likingAnswer');
+    const likingList = user.likingAnswer.map((item) => item.toString());
+    const index = likingList.indexOf(answerId);
+    if (index > -1) {
+      user.likingAnswer.splice(index, 1);
+      user.save();
+      await Answer.findByIdAndUpdate(answerId, {$inc: {upvote: -1}});
+    }
+    ctx.status = 204;
+  }
+
+  /**
+   * 点踩回答
+   * @param {*} ctx
+   * @param {*} next
+   */
+  async dislikingAnswer(ctx, next) {
+    const userId = ctx.state.user._id;
+    const answerId = ctx.params.id;
+    const user = await User.findById(userId).select('+dislikingAnswer');
+    const dislikingList = user.dislikingAnswer.map((item) => item.toString());
+    if (!dislikingList.includes(answerId)) {
+      user.dislikingAnswer.push(answerId);
+      user.save();
+    }
+    ctx.status = 204;
+    await next();
+  }
+  /**
+   * 取消点踩
+   * @param {*} ctx
+   */
+  async undislikingAnswer(ctx) {
+    const userId = ctx.state.user._id;
+    const answerId = ctx.params.id;
+    const user = await User.findById(userId).select('+dislikingAnswer');
+    const dislikingList = user.dislikingAnswer.map((item) => item.toString());
+    const index = dislikingList.indexOf(answerId);
+    if (index > -1) {
+      user.dislikingAnswer.splice(index, 1);
+      user.save();
+    }
+    ctx.status = 204;
+  }
+  /**
+   * 获取用户点赞回答列表
+   * @param {*} ctx
+   */
+  async getLikingAnswerList(ctx) {
+    const userId = ctx.params.id;
+    let {pageNumber = 1, pageSize = 10} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
+    const user = await User.findById(userId)
+      .select('+likingAnswer')
+      .populate({
+        path: 'likingAnswer',
+        select: '+question',
+        populate: {path: 'answerer question'},
+        limit: pageSize,
+        skip: (pageNumber - 1) * pageSize,
+      });
+    if (!user) {
+      ctx.throw(404, '用户不存在');
+    }
+    ctx.body = user.likingAnswer;
+  }
+  /**
+   * 获取用户点踩回答列表
+   * @param {*} ctx
+   */
+  async getDislikingAnswerList(ctx) {
+    const userId = ctx.params.id;
+    const user = await User.findById(userId)
+      .select('+dislikingAnswer')
+      .populate('dislikingAnswer');
+    if (!user) {
+      ctx.throw(404, '用户不存在');
+    }
+    ctx.body = user.dislikingAnswer;
+  }
+  /**
+   * 收藏回答
+   * @param {*} ctx
+   */
+  async collectAnswer(ctx) {
+    const userId = ctx.state.user._id;
+    const answerId = ctx.params.id;
+    const user = await User.findById(userId).select('+collectAnswer');
+    const collectList = user.collectAnswer.map((item) => item.toString());
+    if (!collectList.includes(answerId)) {
+      user.collectAnswer.push(answerId);
+      user.save();
+    }
+    ctx.status = 204;
+  }
+  /**
+   * 取消收藏
+   * @param {*} ctx
+   */
+  async uncollectAnswer(ctx) {
+    const userId = ctx.state.user._id;
+    const answerId = ctx.params.id;
+    const user = await User.findById(userId).select('+collectAnswer');
+    const collectList = user.collectAnswer.map((item) => item.toString());
+    const index = collectList.indexOf(answerId);
+    if (index > -1) {
+      user.collectAnswer.splice(index, 1);
+      user.save();
+    }
+    ctx.status = 204;
+  }
+  /**
+   * 获取收藏回答列表
+   * @param {*} ctx
+   */
+  async getCollectAnswerList(ctx) {
+    const userId = ctx.params.id;
+    const user = await User.findById(userId)
+      .select('+collectAnswer')
+      .populate('collectAnswer');
+    if (!user) {
+      ctx.throw(404, '用户不存在');
+    }
+    ctx.body = user.collectAnswer;
   }
 }
 
