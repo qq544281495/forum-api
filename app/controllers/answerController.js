@@ -29,11 +29,12 @@ class AnswerController {
       content: {type: 'string', required: true},
     });
     const answerer = ctx.state.user._id;
-    const questionId = ctx.params.questionId;
+    const question = ctx.params.questionId;
+    const {content} = ctx.request.body;
     const params = {
-      question: questionId,
+      content,
       answerer,
-      ...ctx.request.body,
+      question,
     };
     const answer = await new Answer(params).save();
     ctx.body = answer;
@@ -47,8 +48,8 @@ class AnswerController {
       content: {type: 'string', required: true},
     });
     const answerId = ctx.params.id;
-    const answerParams = ctx.request.body;
-    const answer = await Answer.findByIdAndUpdate(answerId, answerParams);
+    const {content} = ctx.request.body;
+    const answer = await Answer.findByIdAndUpdate(answerId, {content});
     ctx.body = answer;
   }
   /**

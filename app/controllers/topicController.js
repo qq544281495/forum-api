@@ -12,11 +12,8 @@ class TopicController {
    * @param {*} ctx
    */
   async getTopicList(ctx) {
-    let {pageNumber = 1, pageSize = 10, keyword = '', classify} = ctx.query;
+    let {pageNumber = 1, pageSize = 10, keyword = ''} = ctx.query;
     const params = {name: new RegExp(keyword)};
-    if (classify) {
-      params['classify'] = classify;
-    }
     pageNumber = Math.max(pageNumber * 1, 1);
     pageSize = Math.max(pageSize * 1, 1);
     const topic = await Topic.find(params)
@@ -106,12 +103,17 @@ class TopicController {
    * @param {*} ctx
    */
   async followingList(ctx) {
+    let {pageNumber = 1, pageSize = 10} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
     const topicId = ctx.params.id;
     const topic = await Topic.findById(topicId);
     if (!topic) {
       ctx.throw(404, '话题不存在');
     }
-    const user = await User.find({followingTopic: topicId});
+    const user = await User.find({followingTopic: topicId})
+      .limit(pageSize)
+      .skip((pageNumber - 1) * pageSize);
     ctx.body = user;
   }
   /**

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const md5 = require('../utils/md5');
 
 const userSchema = mongoose.Schema(
   {
@@ -8,7 +9,12 @@ const userSchema = mongoose.Schema(
     // 用户邮箱
     email: {type: String, require: true},
     // 密码
-    password: {type: String, require: true, select: false},
+    password: {
+      type: String,
+      require: true,
+      select: false,
+      set: (value) => md5(value), // 密码加密
+    },
     // 用户头像
     avatar_url: {type: String},
     // 性别

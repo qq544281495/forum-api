@@ -57,7 +57,7 @@ class QuestionController {
     ctx.verifyParams({
       title: {type: 'string', required: false},
       description: {type: 'string', required: false},
-      topic: {type: 'string', required: false},
+      topic: {type: 'array', itemType: 'string', required: false},
     });
     const questionId = ctx.params.id;
     const questionParams = ctx.request.body;

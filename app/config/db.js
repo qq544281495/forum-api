@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 mongoose
-  .connect('mongodb://127.0.0.1:27017/zhihu')
+  .connect('mongodb://127.0.0.1:27017/forum')
   .catch((error) => console.log(`数据库连接失败：${error}`));
 
 const db = mongoose.connection;

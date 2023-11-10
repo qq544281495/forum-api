@@ -1,3 +1,3 @@
 module.exports = {
-  secret: 'zhihu-jwt-secret',
+  secret: 'forum-jwt-secret',
 };

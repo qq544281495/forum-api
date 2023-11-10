@@ -1,4 +1,5 @@
 const Classify = require('../model/classify');
+const Topic = require('../model/topic');
 
 /**
  * 分类API控制器
@@ -54,6 +55,20 @@ class ClassifyController {
       ctx.throw(404, '分类不存在');
     }
     ctx.body = classify;
+  }
+  /**
+   * 获取分类话题
+   * @param {*} ctx
+   */
+  async getTopicList(ctx) {
+    const classifyId = ctx.params.id;
+    let {pageNumber = 1, pageSize = 10} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
+    const topic = await Topic.find({classify: classifyId})
+      .limit(pageSize)
+      .skip((pageNumber - 1) * pageSize);
+    ctx.body = topic;
   }
 }
 

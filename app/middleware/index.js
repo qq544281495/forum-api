@@ -45,7 +45,7 @@ class Middleware {
   async checkUserQuestion(ctx, next) {
     const userId = ctx.state.user._id;
     const questionId = ctx.params.id;
-    const question = await Question.findById(questionId);
+    const question = await Question.findById(questionId).select('+questioner');
     if (!question) {
       ctx.throw(404, '问题不存在');
     }

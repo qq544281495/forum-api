@@ -5,7 +5,7 @@ const Comment = require('../model/comment');
  */
 class CommentController {
   /**
-   * 获取评论列表
+   * 获取一级评论列表
    * @param {*} ctx
    */
   async getCommentList(ctx) {
@@ -14,13 +14,35 @@ class CommentController {
     pageSize = Math.max(pageSize * 1, 1);
     keyword = new RegExp(keyword);
     const {questionId, answerId} = ctx.params;
-    const {rootComment} = ctx.query;
-    const comment = await Comment.find({
+    const params = {
       content: keyword,
       question: questionId,
       answer: answerId,
-      rootComment,
-    })
+      rootComment: {$exists: false},
+    };
+    const comment = await Comment.find(params)
+      .populate('commentator')
+      .limit(pageSize)
+      .skip((pageNumber - 1) * pageSize);
+    ctx.body = comment;
+  }
+  /**
+   * 获取子评论
+   * @param {*} ctx
+   */
+  async getSubcommentList(ctx) {
+    let {pageNumber = 1, pageSize = 10, keyword = ''} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
+    keyword = new RegExp(keyword);
+    const {questionId, answerId, id} = ctx.params;
+    const params = {
+      content: keyword,
+      question: questionId,
+      answer: answerId,
+      rootComment: {$exists: true, $eq: id},
+    };
+    const comment = await Comment.find(params)
       .populate('commentator rootComment replyTo')
       .limit(pageSize)
       .skip((pageNumber - 1) * pageSize);

@@ -26,7 +26,7 @@ class AnswerMiddleware {
     const answerId = ctx.params.id;
     const questionId = ctx.params.questionId;
     const answer = await Answer.findById(answerId).select('+question');
-    if (!answer || answer.questionId.toString() !== questionId) {
+    if (!answer || answer.question.toString() !== questionId) {
       ctx.throw(404, '回答不存在');
     }
     await next();

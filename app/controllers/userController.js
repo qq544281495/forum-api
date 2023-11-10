@@ -1,4 +1,5 @@
 const User = require('../model/user');
+const Topic = require('../model/topic');
 const Question = require('../model/question');
 const Answer = require('../model/answer');
 const jsonwebtoken = require('jsonwebtoken');
@@ -57,10 +58,10 @@ class UserController {
     let {pageNumber = 1, pageSize = 10, keyword = ''} = ctx.query;
     pageNumber = Math.max(pageNumber * 1, 1);
     pageSize = Math.max(pageSize * 1, 1);
-    const userList = await User.find({username: new RegExp(keyword)})
+    const user = await User.find({username: new RegExp(keyword)})
       .limit(pageSize)
       .skip((pageNumber - 1) * pageSize);
-    ctx.body = userList;
+    ctx.body = user;
   }
   /**
    * 获取用户资料
@@ -206,10 +207,17 @@ class UserController {
    * @param {*} ctx
    */
   async followingList(ctx) {
+    let {pageNumber = 1, pageSize = 10} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
     const userId = ctx.params.id;
     const user = await User.findById(userId)
       .select('+following')
-      .populate('following');
+      .populate({
+        path: 'following',
+        limit: pageSize,
+        skip: (pageNumber - 1) * pageSize,
+      });
     if (!user) {
       ctx.throw(404, '用户不存在');
     }
@@ -220,8 +228,13 @@ class UserController {
    * @param {*} ctx
    */
   async followerList(ctx) {
+    let {pageNumber = 1, pageSize = 10} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
     const userId = ctx.params.id;
-    const user = await User.find({following: userId});
+    const user = await User.find({following: userId})
+      .limit(pageSize)
+      .skip((pageNumber - 1) * pageSize);
     ctx.body = user;
   }
   /**
@@ -231,6 +244,10 @@ class UserController {
   async followTopic(ctx) {
     const userId = ctx.state.user._id;
     const topicId = ctx.params.id;
+    const topic = await Topic.findById(topicId);
+    if (!topic) {
+      ctx.throw(404, '话题不存在');
+    }
     const user = await User.findById(userId).select('+followingTopic');
     const topicList = user.followingTopic.map((item) => item.toString());
     if (!topicList.includes(topicId)) {
@@ -261,9 +278,16 @@ class UserController {
    */
   async getFollowTopicList(ctx) {
     const userId = ctx.params.id;
+    let {pageNumber = 1, pageSize = 10} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
     const user = await User.findById(userId)
       .select('+followingTopic')
-      .populate('followingTopic');
+      .populate({
+        path: 'followingTopic',
+        limit: pageSize,
+        skip: (pageNumber - 1) * pageSize,
+      });
     if (!user) {
       ctx.throw(404, '用户不存在');
     }
@@ -274,12 +298,17 @@ class UserController {
    * @param {*} ctx
    */
   async getUserQuestion(ctx) {
+    let {pageNumber = 1, pageSize = 10} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
     const userId = ctx.params.id;
     const user = await User.findById(userId);
     if (!user) {
       ctx.throw(404, '用户不存在');
     }
-    const question = await Question.find({questioner: userId});
+    const question = await Question.find({questioner: userId})
+      .limit(pageSize)
+      .skip((pageNumber - 1) * pageSize);
     ctx.body = question;
   }
   /**
@@ -380,9 +409,18 @@ class UserController {
    */
   async getDislikingAnswerList(ctx) {
     const userId = ctx.params.id;
+    let {pageNumber = 1, pageSize = 10} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
     const user = await User.findById(userId)
       .select('+dislikingAnswer')
-      .populate('dislikingAnswer');
+      .populate({
+        path: 'dislikingAnswer',
+        select: '+question',
+        populate: {path: 'answerer question'},
+        limit: pageSize,
+        skip: (pageNumber - 1) * pageSize,
+      });
     if (!user) {
       ctx.throw(404, '用户不存在');
     }
@@ -425,9 +463,18 @@ class UserController {
    */
   async getCollectAnswerList(ctx) {
     const userId = ctx.params.id;
+    let {pageNumber = 1, pageSize = 10} = ctx.query;
+    pageNumber = Math.max(pageNumber * 1, 1);
+    pageSize = Math.max(pageSize * 1, 1);
     const user = await User.findById(userId)
       .select('+collectAnswer')
-      .populate('collectAnswer');
+      .populate({
+        path: 'collectAnswer',
+        select: '+question',
+        populate: {path: 'answerer question'},
+        limit: pageSize,
+        skip: (pageNumber - 1) * pageSize,
+      });
     if (!user) {
       ctx.throw(404, '用户不存在');
     }
